@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snarl&Sort 接龙游戏</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>🐉 Snarl&Sort 接龙游戏 🐉</h1>
+            <div class="game-info">
+                <div class="mode-selector">
+                    <button id="modeBtn" class="mode-btn">模式: <strong>简单模式</strong></button>
+                    <div class="mode-dropdown" id="modeDropdown">
+                        <a href="#" data-mode="easy">简单模式</a>
+                        <a href="#" data-mode="normal">正常模式</a>
+                        <a href="#" data-mode="hard">困难模式</a>
+                    </div>
+                </div>
+                <span class="moves">步数: <strong id="moveCount">0</strong></span>
+                <button id="hintBtn" class="btn hint-btn">提示: 关</button>
+                <button id="restartBtn" class="btn">重新开始</button>
+            </div>
+        </header>
+
+        <!-- 目标花色堆 -->
+        <div class="foundation-section">
+            <h3>目标花色堆</h3>
+            <div class="foundation-piles">
+                <div class="foundation-pile" data-suit="♠">
+                    <img src="pic/Back of a card@1x.png" alt="♠" class="card-img">
+                </div>
+                <div class="foundation-pile" data-suit="♥">
+                    <img src="pic/Back of a card@1x.png" alt="♥" class="card-img">
+                </div>
+                <div class="foundation-pile" data-suit="♦">
+                    <img src="pic/Back of a card@1x.png" alt="♦" class="card-img">
+                </div>
+                <div class="foundation-pile" data-suit="♣">
+                    <img src="pic/Back of a card@1x.png" alt="♣" class="card-img">
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏主区域 -->
+        <div class="tableau-section">
+            <div class="k-piles left-k-piles" id="leftKPiles">
+                <!-- 左侧K牌堆 -->
+            </div>
+            
+            <div class="tableau" id="tableau">
+                <!-- 主牌桌 (8列) -->
+            </div>
+            
+            <div class="k-piles right-k-piles" id="rightKPiles">
+                <!-- 右侧K牌堆 -->
+            </div>
+        </div>
+
+        <!-- 游戏状态提示 -->
+        <div class="status-bar" id="statusBar">
+            点击并拖动牌到目标位置
+        </div>
+
+        <!-- 游戏结束弹窗 -->
+        <div class="modal" id="gameModal">
+            <div class="modal-content">
+                <h2 id="modalTitle">游戏结束</h2>
+                <p id="modalMessage"></p>
+                <button id="modalBtn" class="btn">再来一局</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

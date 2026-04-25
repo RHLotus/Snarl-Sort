@@ -1,0 +1,412 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: default;
+}
+
+.game-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    color: #ffd700;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.game-info {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    align-items: center;
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.moves {
+    background: rgba(255,255,255,0.1);
+    padding: 8px 20px;
+    border-radius: 20px;
+}
+
+/* 模式选择器 */
+.mode-selector {
+    position: relative;
+}
+
+.mode-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mode-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: scale(1.05);
+}
+
+.mode-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    background: rgba(26, 32, 44, 0.95);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 140px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    display: none;
+    z-index: 100;
+}
+
+.mode-dropdown.show {
+    display: block;
+}
+
+.mode-dropdown a {
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.mode-dropdown a:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.btn {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+}
+
+/* 提示按钮 */
+.hint-btn {
+    background: linear-gradient(145deg, #6c757d, #5a6268);
+}
+
+.hint-btn:hover {
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+}
+
+.hint-btn.active {
+    background: linear-gradient(145deg, #ffc107, #e0a800);
+    color: #000;
+}
+
+.hint-btn.active:hover {
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+}
+
+/* 目标花色堆 */
+.foundation-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.foundation-section h3 {
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.foundation-piles {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.foundation-pile {
+    width: 72px;
+    height: 96px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed rgba(255,255,255,0.3);
+    cursor: pointer;
+}
+
+/* 游戏主区域 */
+.tableau-section {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 800px;
+}
+
+/* K牌堆区域 - 水平排列 */
+.k-piles {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: flex-start;
+    padding: 12px;
+    background: rgba(139, 90, 43, 0.3);
+    border-radius: 12px;
+    min-height: 900px;
+}
+
+.k-pile {
+    width: 72px;
+    min-height: 900px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    position: relative;
+}
+
+/* 主牌桌区域 */
+.tableau {
+    display: flex;
+    gap: 8px;
+    background: rgba(139, 90, 43, 0.3);
+    padding: 12px;
+    border-radius: 12px;
+    min-height: 900px;
+}
+
+.tableau-column {
+    width: 72px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    min-height: 900px;
+    position: relative;
+}
+
+/* 牌的样式 */
+.card {
+    width: 72px;
+    height: 96px;
+    position: absolute;
+    cursor: pointer;
+    transition: top 0.2s ease-out, left 0.2s ease-out; /* 平滑回到原位 */
+    z-index: 1;
+    border-radius: 6px;
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+/* 替换 style.css 中 .card.back 的内容 */
+.card.back {
+    background-color: #1a5276; /* 底色：经典深蓝色 */
+    background-image: 
+        /* 第一层：白色半透明细线，形成网格感 */
+        linear-gradient(30deg, rgba(255,255,255,0.1) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.1) 87.5%, rgba(255,255,255,0.1)),
+        linear-gradient(150deg, rgba(255,255,255,0.1) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.1) 87.5%, rgba(255,255,255,0.1)),
+        linear-gradient(30deg, rgba(255,255,255,0.1) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.1) 87.5%, rgba(255,255,255,0.1)),
+        linear-gradient(150deg, rgba(255,255,255,0.1) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.1) 87.5%, rgba(255,255,255,0.1)),
+        /* 第二层：稍微深色的菱形色块，增加层次 */
+        linear-gradient(60deg, rgba(0,0,0,0.1) 25%, transparent 25.5%, transparent 75%, rgba(0,0,0,0.1) 75.5%, rgba(0,0,0,0.1)),
+        linear-gradient(60deg, rgba(0,0,0,0.1) 25%, transparent 25.5%, transparent 75%, rgba(0,0,0,0.1) 75.5%, rgba(0,0,0,0.1));
+    background-size: 16px 28px; /* 控制格子的大小 */
+    background-position: 0 0, 0 0, 8px 14px, 8px 14px, 0 0, 8px 14px;
+    border: 3px solid #f0f0f0; /* 添加白色内边框，更像实体牌 */
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5); /* 增加内阴影，提升质感 */
+}
+
+.card.face-up {
+    padding: 6px 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.card.face-up:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.card.dragging {
+    opacity: 0.8;
+    transform: scale(1.05) rotate(2deg);
+    transition: none !important; /* 拖拽时严禁动画，否则会有延迟感 */
+    cursor: grabbing;
+    z-index: 1000;
+}
+
+.card.selected {
+    box-shadow: 0 0 0 3px #ffd700;
+}
+
+.card.facedown {
+    cursor: not-allowed;
+}
+
+/* 牌面内容 */
+.card-top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 1.1;
+    flex-shrink: 0;
+    margin-top: -6px;
+}
+
+.card-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 11px;
+    font-weight: bold;
+    line-height: 1.1;
+    transform: rotate(180deg);
+    flex-shrink: 0;
+    margin-bottom: -6px;
+}
+
+.card-middle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    flex: 1;
+    min-height: 0;
+}
+
+/* 花色颜色 */
+.card.red {
+    color: #c00;
+}
+
+.card.black {
+    color: #111;
+}
+
+/* 拖放目标高亮 */
+.drop-target {
+    border: 2px solid #ffd700 !important;
+    background: rgba(255, 215, 0, 0.2) !important;
+}
+
+/* 牌的拖放目标高亮 */
+.card.drop-target {
+    box-shadow: 0 0 10px 3px rgba(255, 215, 0, 0.6) !important;
+    border: 2px solid #ffd700 !important;
+}
+
+/* 状态栏 */
+.status-bar {
+    text-align: center;
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 1.1rem;
+}
+
+/* 弹窗 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+    padding: 40px 60px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.modal-content h2 {
+    color: #ffd700;
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.modal-content p {
+    color: #fff;
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+}
+
+/* 胜利动画 */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.win-animation {
+    animation: pulse 0.5s ease-in-out infinite;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .tableau-section {
+        flex-wrap: wrap;
+    }
+    
+    .k-piles {
+        flex-direction: row;
+    }
+}
+
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .game-info {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .tableau {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
