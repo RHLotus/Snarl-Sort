@@ -22,6 +22,7 @@
                 <span class="moves">步数: <strong id="moveCount">0</strong></span>
                 <button id="hintBtn" class="btn hint-btn">提示: 关</button>
                 <button id="restartBtn" class="btn">重新开始</button>
+                <button id="logBtn" class="btn hint-btn">日志</button>
             </div>
         </header>
 
@@ -64,14 +65,45 @@
             点击并拖动牌到目标位置
         </div>
 
-        <!-- 游戏结束弹窗 -->
-        <div class="modal" id="gameModal">
-            <div class="modal-content">
-                <h2 id="modalTitle">游戏结束</h2>
-                <p id="modalMessage"></p>
-                <button id="modalBtn" class="btn">再来一局</button>
+        <!-- 游戏结束状态横幅 -->
+        <div class="game-banner" id="gameBanner">
+            <div class="banner-content">
+                <h2 id="bannerTitle">游戏结束</h2>
+                <p id="bannerMessage"></p>
+                <button id="bannerBtn" class="btn">再来一局</button>
             </div>
         </div>
+    </div>
+
+    <!-- 烟花特效画布 -->
+    <canvas id="fireworksCanvas" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5000;"></canvas>
+
+    <!-- 手机竖屏提示 -->
+    <div id="orientationTip" class="orientation-tip">
+        <div class="orientation-content">
+            <div class="orientation-icon">📱</div>
+            <h2>请横屏游玩</h2>
+            <p>本游戏暂不支持竖屏模式</p>
+            <div class="orientation-options">
+                <div class="option">
+                    <span class="option-num">1</span>
+                    <span>请将手机横置</span>
+                </div>
+                <div class="option">
+                    <span class="option-num">2</span>
+                    <span>或切换为电脑版网站</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 日志面板 -->
+    <div class="log-panel" id="logPanel" style="display: none; position: fixed; right: 20px; bottom: 20px; width: 350px; max-height: 50vh; background: rgba(0,0,0,0.85); color: #0f0; padding: 15px; border-radius: 10px; overflow-y: auto; z-index: 3000; font-family: monospace; font-size: 13px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 1px solid #333;">
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #555; padding-bottom: 8px; margin-bottom: 8px; position: sticky; top: -15px; background: rgba(0,0,0,0.95); padding-top: 15px; z-index: 1;">
+            <strong style="color: #fff;">游戏事件日志 (Game Log)</strong>
+            <button id="closeLogBtn" style="background: none; color: #aaa; border: none; cursor: pointer; font-size: 16px;">✖</button>
+        </div>
+        <div id="gameLogContent" style="line-height: 1.5; word-wrap: break-word;"></div>
     </div>
 
     <script src="game.js"></script>

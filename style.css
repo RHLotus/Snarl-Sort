@@ -216,43 +216,121 @@ header h1 {
     height: 96px;
     position: absolute;
     cursor: pointer;
-    transition: top 0.2s ease-out, left 0.2s ease-out; /* 平滑回到原位 */
+    transition: top 0.2s ease-out, left 0.2s ease-out;
     z-index: 1;
-    border-radius: 6px;
-    background: linear-gradient(145deg, #ffffff, #f0f0f0);
-    border: 1px solid #ccc;
-    box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    /* 容器本身必须透明且无边框，否则翻转时会看到容器的背面 */
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 /* 替换 style.css 中 .card.back 的内容 */
+/* 这里的 .card.back 样式也可以移除，因为我们已经把样式移到了 .card-front */
 .card.back {
-    background-color: #1a5276; /* 底色：经典深蓝色 */
-    background-image: 
-        /* 第一层：白色半透明细线，形成网格感 */
-        linear-gradient(30deg, rgba(255,255,255,0.1) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.1) 87.5%, rgba(255,255,255,0.1)),
-        linear-gradient(150deg, rgba(255,255,255,0.1) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.1) 87.5%, rgba(255,255,255,0.1)),
-        linear-gradient(30deg, rgba(255,255,255,0.1) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.1) 87.5%, rgba(255,255,255,0.1)),
-        linear-gradient(150deg, rgba(255,255,255,0.1) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.1) 87.5%, rgba(255,255,255,0.1)),
-        /* 第二层：稍微深色的菱形色块，增加层次 */
-        linear-gradient(60deg, rgba(0,0,0,0.1) 25%, transparent 25.5%, transparent 75%, rgba(0,0,0,0.1) 75.5%, rgba(0,0,0,0.1)),
-        linear-gradient(60deg, rgba(0,0,0,0.1) 25%, transparent 25.5%, transparent 75%, rgba(0,0,0,0.1) 75.5%, rgba(0,0,0,0.1));
-    background-size: 16px 28px; /* 控制格子的大小 */
-    background-position: 0 0, 0 0, 8px 14px, 8px 14px, 0 0, 8px 14px;
-    border: 3px solid #f0f0f0; /* 添加白色内边框，更像实体牌 */
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5); /* 增加内阴影，提升质感 */
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
-.card.face-up {
+.card {
+    perspective: 600px;
+    transform-style: preserve-3d;
+}
+
+.card .card-front,
+.card .card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 6px;
+}
+
+/* 正面：暗牌背纹 */
+.card .card-front {
+    background-color: #1a5276;
+    background-image:
+        linear-gradient(30deg, rgba(255,255,255,0.1) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.1) 87.5%, rgba(255,255,255,0.1)),
+        linear-gradient(150deg, rgba(255,255,255,0.1) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.1) 87.5%, rgba(255,255,255,0.1)),
+        linear-gradient(30deg, rgba(255,255,255,0.1) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.1) 87.5%, rgba(255,255,255,0.1)),
+        linear-gradient(150deg, rgba(255,255,255,0.1) 12%, transparent 12.5%, transparent 87%, rgba(255,255,255,0.1) 87.5%, rgba(255,255,255,0.1)),
+        linear-gradient(60deg, rgba(0,0,0,0.1) 25%, transparent 25.5%, transparent 75%, rgba(0,0,0,0.1) 75.5%, rgba(0,0,0,0.1)),
+        linear-gradient(60deg, rgba(0,0,0,0.1) 25%, transparent 25.5%, transparent 75%, rgba(0,0,0,0.1) 75.5%, rgba(0,0,0,0.1));
+    background-size: 16px 28px;
+    background-position: 0 0, 0 0, 8px 14px, 8px 14px, 0 0, 8px 14px;
+    border: 3px solid #f0f0f0;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 2px 2px 5px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+/* 背面：明牌内容 */
+.card .card-back {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0);
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+    transform: rotateY(180deg);
     padding: 6px 4px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
 }
 
+/* 明牌状态下直接显示背面（明牌面） */
+.card.face-up .card-front {
+    display: none;
+}
+
+.card.face-up .card-back {
+    transform: rotateY(0deg);
+    z-index: 2; /* 确保在正面 */
+}
+
+/* 暗牌状态下显示正面（暗牌背纹） */
+.card.back .card-back {
+    display: none;
+}
+
 .card.face-up:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+/* 暗牌翻开动画 */
+/* 动画开始时牌片是暗牌状态（正面朝前），到 rotateY(180deg) 时
+   正面（暗牌背纹）转到背面不可见，
+   而 card-back 有预置的 rotateY(180deg)，父元素再差 180deg 后 = 360deg = 正面可见。 */
+.card.revealing {
+    animation: cardFlipReveal 0.6s ease-in-out forwards;
+}
+
+@keyframes cardFlipReveal {
+    0% {
+        transform: rotateY(0deg) scale(1);
+        box-shadow: 0 0 0 rgba(0,0,0,0);
+    }
+    50% {
+        /* 在90度左右稍微放大，模拟拿起来的动作 */
+        transform: rotateY(90deg) scale(1.15);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    100% {
+        transform: rotateY(180deg) scale(1);
+        box-shadow: 0 0 0 rgba(0,0,0,0);
+    }
+}
+
+/* 动画期间确保正面和背面都可被渲染 */
+.card.revealing .card-front {
+    display: block !important;
+}
+
+.card.revealing .card-back {
+    display: flex !important;
 }
 
 .card.dragging {
@@ -336,42 +414,42 @@ header h1 {
     font-size: 1.1rem;
 }
 
-/* 弹窗 */
-.modal {
-    display: none;
+/* 状态横幅（取代原来的弹窗） */
+.game-banner {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.8);
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-}
-
-.modal.show {
-    display: flex;
-}
-
-.modal-content {
-    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
-    padding: 40px 60px;
-    border-radius: 20px;
+    top: -150px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, rgba(45, 55, 72, 0.95) 0%, rgba(26, 32, 44, 0.95) 100%);
+    padding: 20px 40px;
+    border-radius: 0 0 20px 20px;
     text-align: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    border: 2px solid #ffd700;
+    border-top: none;
+    z-index: 4000;
+    transition: top 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    pointer-events: auto;
 }
 
-.modal-content h2 {
+.game-banner.show {
+    top: 0;
+}
+
+.banner-content h2 {
     color: #ffd700;
     font-size: 2rem;
-    margin-bottom: 15px;
+    margin: 0 0 5px 0;
 }
 
-.modal-content p {
+.banner-content p {
     color: #fff;
-    font-size: 1.2rem;
-    margin-bottom: 25px;
+    font-size: 1.1rem;
+    margin: 0 0 15px 0;
 }
 
 /* 胜利动画 */
@@ -382,6 +460,84 @@ header h1 {
 
 .win-animation {
     animation: pulse 0.5s ease-in-out infinite;
+}
+
+/* 手机竖屏提示 */
+.orientation-tip {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.orientation-tip.show {
+    display: flex;
+}
+
+.orientation-content {
+    color: #fff;
+}
+
+.orientation-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    animation: rotatePhone 2s ease-in-out infinite;
+}
+
+.orientation-content h2 {
+    color: #ffd700;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+}
+
+.orientation-content p {
+    font-size: 1rem;
+    margin-bottom: 30px;
+    opacity: 0.8;
+}
+
+.orientation-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.1);
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 1rem;
+}
+
+.option-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: #ffd700;
+    color: #1a1a2e;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+@keyframes rotatePhone {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-90deg); }
+    75% { transform: rotate(-90deg); }
 }
 
 /* 响应式设计 */
