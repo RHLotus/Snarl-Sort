@@ -10,6 +10,29 @@
     <div class="game-container">
         <header>
             <h1>🐉 Snarl&Sort 接龙游戏 🐉</h1>
+            
+            <div class="info-stats">
+                <span class="moves">步数: <strong id="moveCount">0</strong></span>
+                <span class="moves">提示: <strong id="hintCount">0</strong></span>
+            </div>
+
+            <div class="foundation-section">
+                <div class="foundation-piles">
+                    <div class="foundation-pile" data-suit="♠">
+                        <img src="pic/Back of a card@1x.png" alt="♠" class="card-img">
+                    </div>
+                    <div class="foundation-pile" data-suit="♥">
+                        <img src="pic/Back of a card@1x.png" alt="♥" class="card-img">
+                    </div>
+                    <div class="foundation-pile" data-suit="♣">
+                        <img src="pic/Back of a card@1x.png" alt="♣" class="card-img">
+                    </div>
+                    <div class="foundation-pile" data-suit="♦">
+                        <img src="pic/Back of a card@1x.png" alt="♦" class="card-img">
+                    </div>
+                </div>
+            </div>
+
             <div class="game-info">
                 <div class="mode-selector">
                     <button id="modeBtn" class="mode-btn">模式: <strong>简单模式</strong></button>
@@ -19,31 +42,13 @@
                         <a href="#" data-mode="hard">困难模式</a>
                     </div>
                 </div>
-                <span class="moves">步数: <strong id="moveCount">0</strong></span>
-                <button id="hintBtn" class="btn hint-btn">提示: 关</button>
-                <button id="restartBtn" class="btn">重新开始</button>
-                <button id="logBtn" class="btn hint-btn">日志</button>
+                <div class="info-actions">
+                    <button id="hintBtn" class="btn hint-btn">💡 提示</button>
+                    <button id="restartBtn" class="btn">重新开始</button>
+                    <button id="logBtn" class="btn hint-btn">日志</button>
+                </div>
             </div>
         </header>
-
-        <!-- 目标花色堆 -->
-        <div class="foundation-section">
-            <h3>目标花色堆</h3>
-            <div class="foundation-piles">
-                <div class="foundation-pile" data-suit="♠">
-                    <img src="pic/Back of a card@1x.png" alt="♠" class="card-img">
-                </div>
-                <div class="foundation-pile" data-suit="♥">
-                    <img src="pic/Back of a card@1x.png" alt="♥" class="card-img">
-                </div>
-                <div class="foundation-pile" data-suit="♦">
-                    <img src="pic/Back of a card@1x.png" alt="♦" class="card-img">
-                </div>
-                <div class="foundation-pile" data-suit="♣">
-                    <img src="pic/Back of a card@1x.png" alt="♣" class="card-img">
-                </div>
-            </div>
-        </div>
 
         <!-- 游戏主区域 -->
         <div class="tableau-section">

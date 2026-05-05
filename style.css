@@ -13,36 +13,65 @@ body {
 }
 
 .game-container {
-    max-width: 1400px;
+    max-width: 1450px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 10px 15px;
 }
 
 header {
-    text-align: center;
-    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 3px 15px;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 3px;
+    gap: 10px;
+    border-radius: 8px;
 }
 
 header h1 {
     color: #ffd700;
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    font-size: 1rem;
+    margin: 0;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .game-info {
     display: flex;
-    justify-content: center;
-    gap: 30px;
+    gap: 8px;
     align-items: center;
-    color: #fff;
-    font-size: 1.1rem;
+}
+
+.info-stats {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.info-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
 }
 
 .moves {
-    background: rgba(255,255,255,0.1);
-    padding: 8px 20px;
-    border-radius: 20px;
+    background: rgba(255,255,255,0.05);
+    padding: 4px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #cbd5e1;
+    font-size: 0.85rem;
+}
+
+.moves strong {
+    color: #fff;
+    margin-left: 4px;
 }
 
 /* 模式选择器 */
@@ -51,22 +80,26 @@ header h1 {
 }
 
 .mode-btn {
-    background: rgba(255,255,255,0.1);
-    border: none;
+    background: rgba(51, 65, 85, 0.6);
+    border: 1px solid rgba(255,255,255,0.05);
     color: #fff;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-size: 1.1rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
 }
 
 .mode-btn:hover {
-    background: rgba(255,255,255,0.2);
-    transform: scale(1.05);
+    background: rgba(51, 65, 85, 0.9);
+    border-color: #ffd700;
+}
+
+.mode-btn strong {
+    color: #ffd700;
 }
 
 .mode-dropdown {
@@ -101,32 +134,33 @@ header h1 {
 }
 
 .btn {
-    background: linear-gradient(135deg, #4CAF50, #45a049);
+    background: #10b981;
     color: white;
     border: none;
-    padding: 10px 25px;
-    border-radius: 20px;
-    font-size: 1rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
 }
 
 /* 提示按钮 */
 .hint-btn {
-    background: linear-gradient(145deg, #6c757d, #5a6268);
+    background: #475569;
 }
 
 .hint-btn:hover {
-    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+    background: #334155;
 }
 
 .hint-btn.active {
-    background: linear-gradient(145deg, #ffc107, #e0a800);
+    background: #eab308;
     color: #000;
 }
 
@@ -136,8 +170,7 @@ header h1 {
 
 /* 目标花色堆 */
 .foundation-section {
-    text-align: center;
-    margin-bottom: 20px;
+    margin: 0;
 }
 
 .foundation-section h3 {
@@ -148,19 +181,59 @@ header h1 {
 .foundation-piles {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 12px;
 }
 
 .foundation-pile {
-    width: 72px;
-    height: 96px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 8px;
+    width: 44px;
+    height: 58px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px dashed rgba(255,255,255,0.3);
+    border: 1px dashed rgba(255,255,255,0.2);
     cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.foundation-pile:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: #ffd700;
+}
+
+.foundation-pile .card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    opacity: 0.5;
+}
+
+.foundation-pile .card {
+    position: relative !important;
+    width: 100% !important;
+    height: 100% !important;
+    top: 0 !important;
+    left: 0 !important;
+    transform: none !important;
+    perspective: none !important;
+    cursor: default;
+}
+
+.foundation-pile .card .card-back {
+    padding: 3px 2px !important;
+    border-radius: 4px !important;
+}
+
+.foundation-pile .card .card-top,
+.foundation-pile .card .card-bottom {
+    font-size: 8px !important;
+    margin: 0 !important;
+}
+
+.foundation-pile .card .card-middle {
+    font-size: 14px !important;
 }
 
 /* 游戏主区域 */
@@ -403,15 +476,28 @@ header h1 {
     border: 2px solid #ffd700 !important;
 }
 
+/* 蜘蛛纸牌风格提示闪烁 */
+.hint-flash {
+    box-shadow: 0 0 20px 8px rgba(255, 215, 0, 0.8), 0 0 40px 16px rgba(255, 215, 0, 0.4) !important;
+    border: 2px solid #ffd700 !important;
+    background: rgba(255, 215, 0, 0.3) !important;
+    z-index: 999 !important;
+}
+
+.card.hint-flash {
+    transform: scale(1.05);
+    transition: all 0.15s ease;
+}
+
 /* 状态栏 */
 .status-bar {
     text-align: center;
-    margin-top: 20px;
-    padding: 15px;
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-    border-radius: 10px;
-    font-size: 1.1rem;
+    margin-top: 5px;
+    padding: 5px;
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.6);
+    border-radius: 6px;
+    font-size: 0.85rem;
 }
 
 /* 状态横幅（取代原来的弹窗） */
@@ -541,28 +627,47 @@ header h1 {
 }
 
 /* 响应式设计 */
-@media (max-width: 1200px) {
-    .tableau-section {
-        flex-wrap: wrap;
+@media (max-width: 1100px) {
+    header {
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto auto;
+        gap: 15px;
     }
     
-    .k-piles {
-        flex-direction: row;
+    header h1 {
+        grid-column: 1;
+    }
+    
+    .foundation-section {
+        grid-column: 1 / span 2;
+        grid-row: 2;
+        justify-self: center;
+    }
+    
+    .game-info {
+        grid-column: 2;
+        grid-row: 1;
     }
 }
 
 @media (max-width: 768px) {
-    header h1 {
-        font-size: 1.8rem;
+    header {
+        grid-template-columns: 1fr;
+        padding: 10px;
     }
     
     .game-info {
-        flex-direction: column;
-        gap: 10px;
+        align-items: center;
+        width: 100%;
     }
     
-    .tableau {
-        flex-wrap: wrap;
+    .info-stats, .info-actions {
+        width: 100%;
         justify-content: center;
+    }
+    
+    .foundation-pile {
+        width: 48px;
+        height: 64px;
     }
 }
