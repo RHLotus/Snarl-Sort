@@ -29,6 +29,8 @@ header {
     margin-bottom: 3px;
     gap: 10px;
     border-radius: 8px;
+    position: relative;
+    z-index: 3000;
 }
 
 header h1 {
@@ -83,14 +85,17 @@ header h1 {
     background: rgba(51, 65, 85, 0.6);
     border: 1px solid rgba(255,255,255,0.05);
     color: #fff;
-    padding: 3px 8px;
+    padding: 6px 14px;
     border-radius: 6px;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 4px;
+    justify-content: center;
+    flex-direction: column;
+    min-width: 60px;
+    min-height: 40px;
 }
 
 .mode-btn:hover {
@@ -113,7 +118,7 @@ header h1 {
     min-width: 140px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.3);
     display: none;
-    z-index: 100;
+    z-index: 2000;
 }
 
 .mode-dropdown.show {
@@ -137,11 +142,17 @@ header h1 {
     background: #10b981;
     color: white;
     border: none;
-    padding: 4px 10px;
+    padding: 6px 14px;
     border-radius: 6px;
     font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    min-width: 60px;
+    min-height: 40px;
 }
 
 .btn:hover {
@@ -412,6 +423,7 @@ header h1 {
     transition: none !important; /* 拖拽时严禁动画，否则会有延迟感 */
     cursor: grabbing;
     z-index: 1000;
+    will-change: transform;
 }
 
 .card.selected {
@@ -427,30 +439,30 @@ header h1 {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: bold;
     line-height: 1.1;
     flex-shrink: 0;
-    margin-top: -6px;
+    margin-top: -4px;
 }
 
 .card-bottom {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    font-size: 11px;
+    font-size: 14px;
     font-weight: bold;
     line-height: 1.1;
     transform: rotate(180deg);
     flex-shrink: 0;
-    margin-bottom: -6px;
+    margin-bottom: -4px;
 }
 
 .card-middle {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 24px;
+    font-size: 30px;
     flex: 1;
     min-height: 0;
 }
@@ -503,7 +515,7 @@ header h1 {
 /* 状态横幅（取代原来的弹窗） */
 .game-banner {
     position: fixed;
-    top: -150px;
+    top: -400px;
     left: 50%;
     transform: translateX(-50%);
     background: linear-gradient(135deg, rgba(45, 55, 72, 0.95) 0%, rgba(26, 32, 44, 0.95) 100%);
@@ -524,6 +536,12 @@ header h1 {
 
 .game-banner.show {
     top: 0;
+}
+
+.banner-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .banner-content h2 {

@@ -1,5 +1,5 @@
-// 定义花色和点数
-const SUITS = ['♠', '♥', '♦', '♣'];
+// 定义花色和点数（黑桃→红桃→梅花→方块）
+const SUITS = ['♠', '♥', '♣', '♦'];
 const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 
 // 牌类
@@ -45,12 +45,18 @@ class SolitaireGame {
         this.isProcessingAuto = false;
         this._globalEventsBound = false;
         this.currentScale = 1;
+        this.enableSound = true; // 音效开关
+        this.enableDealAnimation = true; // 发牌动画开关
+        this.sounds = {}; // 预加载的音效缓存
+        this.preloadSounds();
         this.autoScale();
         this.setupGame();
         this.bindGlobalEvents(); // 全局事件只绑定一次
         this.render();
         this.updateMoveCount();
         this.updateStatus('点击并拖动牌到目标位置');
+        // 游戏初始化后发牌动画
+        this.playDealAnimation();
     }
 
     logAction(msg) {
@@ -112,10 +118,12 @@ class SolitaireGame {
             this.flashHint(best.fromCol, best.fromRow, best.toCol);
             this.hintCount++;
             this.updateHintCount();
+            this.playTipSound();
             return;
         }
 
         this.updateStatus('没有可用的提示移动');
+        this.playNoTipSound();
     }
 
     flashHint(fromCol, fromRow, toCol) {
@@ -429,6 +437,9 @@ class SolitaireGame {
                         const foundationPile = document.querySelectorAll('.foundation-pile')[suitIdx];
                         
                         if (foundationPile) {
+                            // 收牌动画开始时立即播放音效
+                            this.playCollectSound();
+
                             const fRect = foundationPile.getBoundingClientRect();
                             const startRects = seqEls.map(el => el.getBoundingClientRect());
                             const kRect = startRects[0];
@@ -519,11 +530,13 @@ class SolitaireGame {
             title.textContent = '🎉 恭喜获胜！';
             message.textContent = `你成功完成了游戏，共用了 ${this.moveCount} 步！`;
             title.classList.add('win-animation');
+            this.playWinSound();
             this.playFireworks();
         } else {
             title.textContent = '没有可用移动了';
             message.textContent = `已进入死局。共尝试了 ${this.moveCount} 步。`;
             title.classList.remove('win-animation');
+            this.playLoseSound();
         }
         banner.classList.add('show');
     }
@@ -758,6 +771,10 @@ class SolitaireGame {
                 }
             });
         }
+        this._fromCol = col;
+        this._fromRow = row;
+        // 播放拿起牌音效
+        this.playMoveSound('pickup');
         e.preventDefault();
     }
 
@@ -787,62 +804,101 @@ class SolitaireGame {
         if (!this.isDragging || !this.dragCards.length) return;
         const dx = (e.clientX - this.dragStartPos.x) / this.currentScale;
         const dy = (e.clientY - this.dragStartPos.y) / this.currentScale;
+
+        // 先更新拖拽牌位置（不等待高亮检测）
         this.dragCards.forEach((card) => {
             card.style.transform = `translate(${dx}px, ${dy}px)`;
         });
 
+        // 高亮检测使用 RAF 节流
+        if (this._highlightRaf) return;
+        this._highlightRaf = requestAnimationFrame(() => {
+            this._highlightRaf = null;
+            this._updateDropHighlight();
+        });
+    }
+
+    _updateDropHighlight() {
+        // 清除旧高亮
         document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
         this.currentDropTarget = null;
+
+        const fromCol = this._fromCol;
+        const fromRow = this._fromRow;
         const firstDragCard = this.dragCards[0];
-        const fromCol = this.selectedCards.col;
-        const fromRow = this.selectedCards.row;
-        const allPotentialCards = Array.from(document.querySelectorAll('.card.face-up:not(.dragging):not(.placeholder)'));
-        document.querySelectorAll('.tableau-column, .k-pile').forEach(col => {
-            const tCol = parseInt(col.dataset.col);
-            if (this.getPile(tCol).length === 0) allPotentialCards.push(col);
-        });
-        
-        for (const targetElement of allPotentialCards) {
-            const tCol = parseInt(targetElement.dataset.col);
-            if (isNaN(tCol)) continue;
-            const isCard = targetElement.classList.contains('card');
+        if (!firstDragCard || fromCol == null) return;
+
+        // 缓存拖拽牌的 rect，避免重复调用 getBoundingClientRect
+        const dragRect = firstDragCard.getBoundingClientRect();
+
+        // 每次重新查询当前 DOM（render 会重建 DOM，缓存会过时）
+        const allCards = document.querySelectorAll('.card.face-up:not(.dragging):not(.placeholder)');
+        const emptyCols = document.querySelectorAll('.tableau-column, .k-pile');
+
+        // 先检查牌面目标
+        for (const cardEl of allCards) {
+            const tCol = parseInt(cardEl.dataset.col);
+            if (isNaN(tCol) || tCol === fromCol) continue;
             const pile = this.getPile(tCol);
-            if (tCol !== fromCol) {
-                let canDrop = false;
-                if (pile.length === 0) canDrop = this.isValidMove(fromCol, fromRow, tCol);
-                else if (isCard) {
-                    if (parseInt(targetElement.dataset.row) === pile.length - 1) {
-                        canDrop = this.isValidMove(fromCol, fromRow, tCol);
-                    }
-                }
-                if (canDrop && this.isOverlapping(firstDragCard, targetElement)) {
-                    targetElement.classList.add('drop-target');
-                    this.currentDropTarget = { 'col': tCol, 'row': Math.max(0, pile.length - 1) };
-                    break;
-                }
+            if (pile.length === 0) continue;
+            if (parseInt(cardEl.dataset.row) !== pile.length - 1) continue;
+            if (!this.isValidMove(fromCol, fromRow, tCol)) continue;
+            const targetRect = cardEl.getBoundingClientRect();
+            if (this._rectsOverlap(dragRect, targetRect)) {
+                cardEl.classList.add('drop-target');
+                this.currentDropTarget = { col: tCol, row: pile.length - 1 };
+                return;
+            }
+        }
+
+        // 再检查空列
+        for (const colEl of emptyCols) {
+            const tCol = parseInt(colEl.dataset.col);
+            if (isNaN(tCol) || tCol === fromCol) continue;
+            const pile = this.getPile(tCol);
+            if (pile.length !== 0) continue;
+            if (!this.isValidMove(fromCol, fromRow, tCol)) continue;
+            const targetRect = colEl.getBoundingClientRect();
+            if (this._rectsOverlap(dragRect, targetRect)) {
+                colEl.classList.add('drop-target');
+                this.currentDropTarget = { col: tCol, row: 0 };
+                return;
             }
         }
     }
 
+    _rectsOverlap(r1, r2) {
+        return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+    }
+
     onMouseUp(e) {
         if (!this.isDragging) return;
+        let moved = false;
         if (this.selectedCards) {
             const fromCol = this.selectedCards.col;
             const fromRow = this.selectedCards.row;
             let targetCol = null;
             if (this.currentDropTarget) targetCol = this.currentDropTarget.col;
-            if (targetCol !== null && targetCol !== fromCol) {
-                if (!this.moveCard(fromCol, fromRow, targetCol)) {
+            if (targetCol != null && targetCol !== fromCol) {
+                moved = this.moveCard(fromCol, fromRow, targetCol);
+                if (!moved) {
                     this.updateStatus('移动无效');
                     this.logAction(`[DEBUG] 移动失败: 从列 ${fromCol} 到列 ${targetCol} 不符合规则`);
                 }
             }
         }
-        this.cleanupDrag();
+        this.cleanupDrag(!moved);
+        if (moved) {
+            this.playMoveSound('putdown');
+        }
     }
 
-    cleanupDrag() {
+    cleanupDrag(invalidMove = false) {
         if (this.rafId) { cancelAnimationFrame(this.rafId); this.rafId = null; }
+        
+        if (invalidMove) {
+            this.playBounceSound();
+        }
         
         if (this.dragCards && this.dragCards.length > 0) {
             this.dragCards.forEach((card, index) => {
@@ -882,6 +938,8 @@ class SolitaireGame {
         this.dragCards = []; 
         this.dragOriginalStyles = [];
         this.currentDropTarget = null;
+        this._fromCol = null;
+        this._fromRow = null;
     }
 
     restart(newMode = null) {
@@ -900,7 +958,199 @@ class SolitaireGame {
         this.updateMoveCount(); this.updateHintCount();
         this.updateStatus('点击并拖动牌到目标位置');
         this.render();
-        setTimeout(() => this.processAutomaticMoves(), 500);
+        this.playDealAnimation();
+    }
+
+    // ========== 发牌动画与音效 ==========
+
+    // 预加载所有音效文件
+    preloadSounds() {
+        const soundFiles = {
+            deal: 'sounds/deal.mp3',
+            pickup: 'sounds/pickup.mp3',
+            putdown: 'sounds/putdown.mp3',
+            tip: 'sounds/tip.mp3',
+            noTip: 'sounds/no_tip.mp3',
+            success: 'sounds/success.mp3',
+            firework: 'sounds/firework.mp3'
+        };
+        for (const [key, src] of Object.entries(soundFiles)) {
+            const audio = new Audio(src);
+            audio.preload = 'auto';
+            this.sounds[key] = audio;
+        }
+    }
+
+    // 通用播放音效方法
+    playSound(name) {
+        if (!this.enableSound) return;
+        const audio = this.sounds[name];
+        if (!audio) return;
+        try {
+            // 克隆音频以支持重叠播放
+            const clone = audio.cloneNode();
+            clone.volume = 0.6;
+            clone.play().catch(() => {});
+        } catch (e) {
+            // 忽略音频错误
+        }
+    }
+
+    // 播放发牌音效
+    playDealSound() {
+        this.playSound('deal');
+    }
+
+    // 播放移牌音效（pickup / putdown）
+    playMoveSound(type = 'putdown') {
+        if (type === 'pickup') {
+            this.playSound('pickup');
+        } else {
+            this.playSound('putdown');
+        }
+    }
+
+    // 播放提示音效
+    playTipSound() {
+        this.playSound('tip');
+    }
+
+    // 播放无提示音效
+    playNoTipSound() {
+        this.playSound('noTip');
+    }
+
+    // 播放收牌音效（花色成龙后收回）
+    playCollectSound() {
+        this.playSound('deal');
+    }
+
+    // 播放胜利音效
+    playWinSound() {
+        this.playSound('success');
+    }
+
+    // 播放失败音效
+    playLoseSound() {
+        this.playSound('noTip');
+    }
+
+    // 播放烟花音效
+    playFireworkSound() {
+        this.playSound('firework');
+    }
+
+    // 获取发牌动画中所有牌的目标位置信息
+    // 返回按发牌顺序排列的 {col, row, card} 数组
+    getDealCardPositions() {
+        const positions = [];
+        // 先摆两行暗牌（每列各2张）
+        for (let row = 0; row < 2; row++) {
+            for (let col = 0; col < 8; col++) {
+                if (row < this.tableau[col].length) {
+                    positions.push({ col: 2 + col, row, card: this.tableau[col][row] });
+                }
+            }
+        }
+        // 再摆八行阶梯明牌
+        for (let row = 2; row < 10; row++) {
+            for (let col = row - 2; col < 8; col++) {
+                if (row < this.tableau[col].length) {
+                    positions.push({ col: 2 + col, row, card: this.tableau[col][row] });
+                }
+            }
+        }
+        return positions;
+    }
+
+    // 执行发牌动画：使用单个 RAF 循环，零微任务开销
+    async playDealAnimation() {
+        if (!this.enableDealAnimation) {
+            setTimeout(() => this.processAutomaticMoves(), 500);
+            return;
+        }
+
+        const dealPositions = this.getDealCardPositions();
+        if (dealPositions.length === 0) {
+            setTimeout(() => this.processAutomaticMoves(), 500);
+            return;
+        }
+
+        this.render();
+
+        const startX = window.innerWidth / 2 - 36;
+        const startY = window.innerHeight / 2 - 48;
+
+        // 收集所有牌并移到起始位置
+        const cards = [];
+        for (const pos of dealPositions) {
+            const el = document.querySelector(`.card[data-col="${pos.col}"][data-row="${pos.row}"]`);
+            if (!el) continue;
+            const rect = el.getBoundingClientRect();
+            const dx = rect.left - startX;
+            const dy = rect.top - startY;
+            el.style.transform = `translate(${-dx}px, ${-dy}px)`;
+            el.style.opacity = '0';
+            cards.push({ el, dx, dy });
+        }
+
+        document.body.offsetHeight; // 强制回流
+
+        const delay = 35;
+        const duration = 80;
+        const total = cards.length;
+        let idx = 0;
+        let lastCardTime = performance.now();
+
+        return new Promise(resolve => {
+            const tick = (now) => {
+                while (idx < total && now - lastCardTime >= delay) {
+                    const { el, dx, dy } = cards[idx];
+                    this.playDealSound();
+                    // 使用 Web Animations API（Safari 上走合成器线程，不卡主线程）
+                    el.animate([
+                        { transform: `translate(${-dx}px, ${-dy}px)`, opacity: 0 },
+                        { transform: 'translate(0px, 0px)', opacity: 1 }
+                    ], {
+                        duration: duration,
+                        easing: 'ease-out',
+                        fill: 'forwards'
+                    });
+                    idx++;
+                    lastCardTime += delay;
+                }
+                if (idx < total) {
+                    requestAnimationFrame(tick);
+                } else {
+                    setTimeout(() => this.processAutomaticMoves(), 400);
+                    resolve();
+                }
+            };
+            requestAnimationFrame(tick);
+        });
+    }
+
+    // 播放非法移动回弹音效（Windows 报错风格）
+    playBounceSound() {
+        if (!this.enableSound) return;
+        try {
+            if (!this._audioCtx) {
+                this._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            const ctx = this._audioCtx;
+            if (ctx.state === 'suspended') ctx.resume();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(200, ctx.currentTime);
+            osc.frequency.setValueAtTime(160, ctx.currentTime + 0.06);
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.14);
+        } catch (e) {}
     }
 }
 
@@ -930,7 +1180,7 @@ document.addEventListener('DOMContentLoaded', () => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             const newMode = link.dataset.mode;
-            modeBtn.innerHTML = `模式: <strong>${link.textContent}</strong>`;
+            modeBtn.innerHTML = link.textContent.replace('模式', '<br>模式');
             modeDropdown.classList.remove('show');
             game.restart(newMode);
         });
