@@ -49,6 +49,7 @@ class SolitaireGame {
         this.enableDealAnimation = true; // 发牌动画开关
         this.sounds = {}; // 预加载的音效缓存
         this.preloadSounds();
+        this.currentTheme = 'classic'; // 当前花色主题
         this.autoScale();
         this.setupGame();
         this.bindGlobalEvents(); // 全局事件只绑定一次
@@ -598,10 +599,10 @@ class SolitaireGame {
         piles.forEach((pile, index) => {
             const suit = SUITS[index];
             const cards = this.wastePiles[suit];
-            const colorClass = suit === '♥' || suit === '♦' ? 'red' : 'black';
+            const suitClass = 'suit-' + { '♠': 'spade', '♥': 'heart', '♣': 'club', '♦': 'diamond' }[suit];
             if (cards.length > 0) {
                 const topCard = cards[cards.length - 1];
-                pile.innerHTML = `<div class="card face-up ${colorClass}" style="position: static;"><div class="card-front"></div><div class="card-back ${colorClass}"><div class="card-top"><span>${topCard.rank}</span><span>${topCard.suit}</span></div><div class="card-middle">${topCard.suit}</div><div class="card-bottom"><span>${topCard.rank}</span><span>${topCard.suit}</span></div></div></div>`;
+                pile.innerHTML = `<div class="card face-up ${suitClass}" style="position: static;"><div class="card-front"></div><div class="card-back ${suitClass}"><div class="card-top"><span>${topCard.rank}</span><span>${topCard.suit}</span></div><div class="card-middle">${topCard.suit}</div><div class="card-bottom"><span>${topCard.rank}</span><span>${topCard.suit}</span></div></div></div>`;
                 pile.style.border = '2px solid #ffd700';
             } else {
                 pile.innerHTML = `<div class="card back" style="position: static; opacity: 0.3;"></div>`;
@@ -691,17 +692,18 @@ class SolitaireGame {
     createCardElement(card, colIdx, rowIdx, totalRows) {
         const div = document.createElement('div');
         const isRevealing = this.revealingCards.includes(card);
+        const suitClass = 'suit-' + { '♠': 'spade', '♥': 'heart', '♣': 'club', '♦': 'diamond' }[card.suit];
         const colorClass = card.suit === '♥' || card.suit === '♦' ? 'red' : 'black';
         div.className = 'card';
         if (isRevealing) {
-            div.classList.add('back', 'facedown', 'revealing', colorClass);
+            div.classList.add('back', 'facedown', 'revealing', suitClass);
             div.addEventListener('animationend', () => {
                 div.classList.remove('back', 'facedown', 'revealing');
-                div.classList.add('face-up', colorClass);
+                div.classList.add('face-up', suitClass);
             }, { once: true });
-        } else if (card.faceUp) div.classList.add('face-up', colorClass);
+        } else if (card.faceUp) div.classList.add('face-up', suitClass);
         else div.classList.add('back', 'facedown');
-        div.innerHTML = `<div class="card-front"></div><div class="card-back ${colorClass}"><div class="card-top"><span>${card.rank}</span><span>${card.suit}</span></div><div class="card-middle">${card.suit}</div><div class="card-bottom"><span>${card.rank}</span><span>${card.suit}</span></div></div>`;
+        div.innerHTML = `<div class="card-front"></div><div class="card-back ${suitClass}"><div class="card-top"><span>${card.rank}</span><span>${card.suit}</span></div><div class="card-middle">${card.suit}</div><div class="card-bottom"><span>${card.rank}</span><span>${card.suit}</span></div></div>`;
         div.dataset.col = colIdx;
         div.dataset.row = rowIdx;
         div.style.top = `${rowIdx * 35}px`;
@@ -1152,6 +1154,28 @@ class SolitaireGame {
             osc.stop(ctx.currentTime + 0.14);
         } catch (e) {}
     }
+
+    // ========== 主题切换 ==========
+
+    applyTheme(themeName) {
+        this.currentTheme = themeName;
+        const body = document.body;
+        body.classList.remove('theme-classic', 'theme-terminal', 'theme-pastel', 'theme-vivid');
+        body.classList.add('theme-' + themeName);
+        // 更新主题按钮状态
+        document.querySelectorAll('.theme-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.theme === themeName);
+        });
+        // 保存到 localStorage
+        try { localStorage.setItem('solitaire-theme', themeName); } catch (e) {}
+    }
+
+    cycleTheme() {
+        const themes = ['classic', 'terminal', 'pastel', 'vivid'];
+        const idx = themes.indexOf(this.currentTheme);
+        const next = themes[(idx + 1) % themes.length];
+        this.applyTheme(next);
+    }
 }
 
 function isMobileDevice() {
@@ -1173,6 +1197,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', checkOrientation);
     window.addEventListener('orientationchange', checkOrientation);
     const game = new SolitaireGame('easy');
+    // 从 localStorage 恢复主题
+    try {
+        const savedTheme = localStorage.getItem('solitaire-theme');
+        if (savedTheme) game.applyTheme(savedTheme);
+        else game.applyTheme('classic');
+    } catch (e) { game.applyTheme('classic'); }
     const modeBtn = document.getElementById('modeBtn');
     const modeDropdown = document.getElementById('modeDropdown');
     modeBtn.addEventListener('click', (e) => { e.stopPropagation(); modeDropdown.classList.toggle('show'); });
@@ -1191,4 +1221,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('hintBtn').addEventListener('click', () => game.showHint());
     document.getElementById('logBtn').addEventListener('click', () => { document.getElementById('logPanel').style.display = 'block'; });
     document.getElementById('closeLogBtn').addEventListener('click', () => { document.getElementById('logPanel').style.display = 'none'; });
+    // 主题切换按钮
+    document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.addEventListener('click', () => game.applyTheme(btn.dataset.theme));
+    });
 });
