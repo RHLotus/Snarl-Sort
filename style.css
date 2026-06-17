@@ -510,21 +510,21 @@ header h1 {
 .theme-classic .card.suit-diamond { color: #c00; }
 
 /* 主题1：终端灵感（四色独立） */
-.theme-terminal .card.suit-spade { color: #00bcd4; }   /* 青色 */
+.theme-terminal .card.suit-spade { color: #00838f; }   /* 深青（原 #00bcd4，调深更搭配） */
 .theme-terminal .card.suit-heart { color: #ff5252; }   /* 亮红 */
-.theme-terminal .card.suit-club { color: #ffc107; }    /* 金色 */
+.theme-terminal .card.suit-club { color: #c68a00; }    /* 深金色（原 #ffc107 调深） */
 .theme-terminal .card.suit-diamond { color: #448aff; } /* 蓝色 */
 
 /* 主题2：柔和 pastel */
 .theme-pastel .card.suit-spade { color: #5c6bc0; }    /* 靛蓝 */
 .theme-pastel .card.suit-heart { color: #ec407a; }    /* 粉红 */
-.theme-pastel .card.suit-club { color: #66bb6a; }     /* 绿色 */
-.theme-pastel .card.suit-diamond { color: #ffa726; }   /* 橙色 */
+.theme-pastel .card.suit-club { color: #388e3c; }     /* 深绿（原 #66bb6a 再调深） */
+.theme-pastel .card.suit-diamond { color: #d4720a; }   /* 深橙棕（原 #ffa726 调深） */
 
 /* 主题3：高对比 vivid */
-.theme-vivid .card.suit-spade { color: #18ffff; }     /* 霓虹青 */
+.theme-vivid .card.suit-spade { color: #00acc1; }     /* 青蓝（原 #18ffff 调深，去荧光感） */
 .theme-vivid .card.suit-heart { color: #ff1744; }     /* 霓虹红 */
-.theme-vivid .card.suit-club { color: #76ff03; }      /* 霓虹绿 */
+.theme-vivid .card.suit-club { color: #39b800; }      /* 深草绿（原 #76ff03 调深） */
 .theme-vivid .card.suit-diamond { color: #e040fb; }   /* 霓虹紫 */
 
 /* 保持旧类兼容 */
